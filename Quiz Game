@@ -1,0 +1,162 @@
+/* Quiz Game */
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
+
+public class QuizGame extends JFrame {
+    private int score = 0;
+    private int currentQuestionIndex = 0;
+
+    // Questions and answers (updated with more questions)
+    private String[] questions = {
+        "What is the capital of France?",
+        "Which planet is known as the Red Planet?",
+        "Who wrote 'Romeo and Juliet'?",
+        "What is the largest ocean on Earth?",
+        "Which element is represented by the symbol 'O'?",
+        "How many continents are there?",
+        "What is the tallest mountain in the world?",
+        "Who painted the Mona Lisa?",
+        "What is the smallest prime number?",
+        "What is the hardest natural substance on Earth?"
+    };
+
+    private String[][] options = {
+        {"Paris", "London", "Berlin", "Madrid"},
+        {"Earth", "Mars", "Jupiter", "Saturn"},
+        {"Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"},
+        {"Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"},
+        {"Oxygen", "Osmium", "Ozone", "Osmium"},
+        {"5", "6", "7", "8"},
+        {"Mount Everest", "K2", "Kangchenjunga", "Mount Kilimanjaro"},
+        {"Leonardo da Vinci", "Pablo Picasso", "Vincent van Gogh", "Claude Monet"},
+        {"1", "2", "3", "4"},
+        {"Diamond", "Gold", "Iron", "Platinum"}
+    };
+
+    private int[] correctAnswers = {0, 1, 1, 0, 0, 7, 0, 0, 1, 0}; // Correct answers (0-based index)
+
+    private JLabel questionLabel;
+    private JButton[] answerButtons;
+    private JLabel scoreLabel;
+
+    // Separate output frame (box) in a JPanel
+    private JPanel outputPanel;
+    private JTextArea outputArea;
+    private JScrollPane outputScroll;
+
+    public QuizGame() {
+        // Set up the main frame
+        setTitle("Quiz Game with Box Output");
+        setSize(700, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+
+        // Panel for the question and answer buttons
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        
+        // Question label at the top of the main panel
+        questionLabel = new JLabel("Welcome to the Quiz Game!", JLabel.CENTER);
+        questionLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        mainPanel.add(questionLabel, BorderLayout.NORTH);
+
+        // Panel for answer buttons in the center
+        JPanel answersPanel = new JPanel();
+        answersPanel.setLayout(new GridLayout(4, 1, 10, 10)); // Grid layout for answers
+        answerButtons = new JButton[4];
+        for (int i = 0; i < 4; i++) {
+            answerButtons[i] = new JButton();
+            answerButtons[i].addActionListener(new AnswerButtonListener(i));
+            answersPanel.add(answerButtons[i]);
+        }
+        mainPanel.add(answersPanel, BorderLayout.CENTER);
+        
+        // Score label at the bottom of the main panel
+        scoreLabel = new JLabel("Score: 0", JLabel.CENTER);
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        mainPanel.add(scoreLabel, BorderLayout.SOUTH);
+
+        // Add the main panel to the center of the frame
+        add(mainPanel, BorderLayout.CENTER);
+
+        // Output panel (box frame)
+        outputPanel = new JPanel();
+        outputPanel.setLayout(new BorderLayout());
+        outputPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2)); // Box border
+
+        // Output area inside the box
+        outputArea = new JTextArea();
+        outputArea.setEditable(false);
+        outputArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        outputScroll = new JScrollPane(outputArea);
+        outputPanel.add(outputScroll, BorderLayout.CENTER);
+
+        // Add the output panel (box) to the right side of the frame
+        add(outputPanel, BorderLayout.EAST);
+
+        // Start the quiz
+        showQuestion(currentQuestionIndex);
+
+        setVisible(true);
+    }
+
+    private void showQuestion(int index) {
+        // Update question label and answer buttons
+        questionLabel.setText(questions[index]);
+        for (int i = 0; i < 4; i++) {
+            answerButtons[i].setText(options[index][i]);
+        }
+    }
+
+    private class AnswerButtonListener implements ActionListener {
+        private int answerIndex;
+
+        public AnswerButtonListener(int answerIndex) {
+            this.answerIndex = answerIndex;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Check if the answer is correct
+            if (answerIndex == correctAnswers[currentQuestionIndex]) {
+                score++;
+                showFeedback("Correct!");
+            } else {
+                showFeedback("Incorrect!");
+            }
+
+            // Move to the next question or end the game
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion(currentQuestionIndex);
+            } else {
+                endGame();
+            }
+            scoreLabel.setText("Score: " + score);
+        }
+    }
+
+    private void showFeedback(String feedbackMessage) {
+        outputArea.setText(feedbackMessage);
+    }
+
+    private void endGame() {
+        String message = "Your final score is: " + score + "/" + questions.length;
+        if (score == questions.length) {
+            message += "\nExcellent!";
+        } else if (score > questions.length / 2) {
+            message += "\nGood job!";
+        } else {
+            message += "\nBetter luck next time!";
+        }
+        outputArea.setText(message);
+        JOptionPane.showMessageDialog(this, message);
+        System.exit(0);
+    }
+
+    public static void main(String[] args) {
+        new QuizGame();
+    }
+}
